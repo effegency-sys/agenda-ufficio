@@ -32,6 +32,7 @@ const els = {
   debugLog: document.getElementById("debugLog"),
   clockTime: document.getElementById("clockTime"),
   clockDate: document.getElementById("clockDate"),
+  headerYear: document.getElementById("headerYear"),
 };
 
 function log(msg) {
@@ -58,6 +59,7 @@ function updateClock() {
     month: "long",
     year: "numeric",
   });
+  els.headerYear.textContent = now.getFullYear();
 }
 setInterval(updateClock, 1000);
 updateClock();
