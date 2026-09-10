@@ -22,8 +22,7 @@ const els = {
   authPanel: document.getElementById("authPanel"),
   authStatus: document.getElementById("authStatus"),
   connectBtn: document.getElementById("connectBtn"),
-  todayList: document.getElementById("todayList"),
-  todayEmpty: document.getElementById("todayEmpty"),
+  upcomingScroll: document.getElementById("upcomingScroll"),
   calendarDaysHeader: document.getElementById("calendarDaysHeader"),
   calendarAlldayRow: document.getElementById("calendarAlldayRow"),
   calendarBody: document.getElementById("calendarBody"),
@@ -258,17 +257,16 @@ async function fetchEvents() {
       includedCalendars = await resolveIncludedCalendars();
     }
 
-    const [todayEvents, weekEvents] = await Promise.all([
-      fetchEventsAcrossCalendars(includedCalendars, isoStartOfDay(0), isoStartOfDay(1)),
-      fetchEventsAcrossCalendars(includedCalendars, isoStartOfDay(0), isoStartOfDay(7)),
-    ]);
+    const weekEvents = await fetchEventsAcrossCalendars(
+      includedCalendars, isoStartOfDay(0), isoStartOfDay(7)
+    );
 
-    renderToday(todayEvents);
+    renderUpcoming(weekEvents);
     renderCalendarWeek(weekEvents);
 
     const now = new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
     els.updatedAt.textContent = `Aggiornato alle ${now}`;
-    log(`Fetch OK: ${todayEvents.length} oggi, ${weekEvents.length} settimana (${includedCalendars.length} calendari).`);
+    log(`Fetch OK: ${weekEvents.length} eventi nei prossimi 7 giorni (${includedCalendars.length} calendari).`);
   } catch (err) {
     if (err.message === "UNAUTHORIZED") {
       log("Token scaduto o non valido, richiedo un nuovo token...");
@@ -296,45 +294,87 @@ function isEventNow(event) {
          now < new Date(event.end.dateTime).getTime();
 }
 
-function renderToday(events) {
-  els.todayList.innerHTML = "";
+function buildEventCard(ev) {
+  const li = document.createElement("li");
+  li.className = "event-card" + (isEventNow(ev) ? " is-current" : "");
 
-  if (events.length === 0) {
-    els.todayEmpty.hidden = false;
-    return;
+  const time = document.createElement("span");
+  time.className = "event-time";
+  time.textContent = formatEventTime(ev);
+
+  const title = document.createElement("span");
+  title.className = "event-title";
+  title.textContent = ev.summary || "(senza titolo)";
+
+  li.appendChild(time);
+  li.appendChild(title);
+
+  if (ev._calendarName) {
+    const calTag = document.createElement("span");
+    calTag.className = "event-calendar-tag";
+    calTag.textContent = ev._calendarName;
+    li.appendChild(calTag);
   }
-  els.todayEmpty.hidden = true;
 
-  for (const ev of events) {
-    const li = document.createElement("li");
-    li.className = "event-card" + (isEventNow(ev) ? " is-current" : "");
+  if (isEventNow(ev)) {
+    const tag = document.createElement("span");
+    tag.className = "event-tag";
+    tag.textContent = "In corso";
+    li.appendChild(tag);
+  }
 
-    const time = document.createElement("span");
-    time.className = "event-time";
-    time.textContent = formatEventTime(ev);
+  return li;
+}
 
-    const title = document.createElement("span");
-    title.className = "event-title";
-    title.textContent = ev.summary || "(senza titolo)";
+function renderUpcoming(weekEvents) {
+  els.upcomingScroll.innerHTML = "";
 
-    li.appendChild(time);
-    li.appendChild(title);
+  const dayDefs = [0, 1, 2].map((offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return {
+      key: d.toDateString(),
+      label: ["Oggi", "Domani", "Dopodomani"][offset],
+      dateText: d.toLocaleDateString("it-IT", { day: "numeric", month: "short" }),
+    };
+  });
 
-    if (ev._calendarName) {
-      const calTag = document.createElement("span");
-      calTag.className = "event-calendar-tag";
-      calTag.textContent = ev._calendarName;
-      li.appendChild(calTag);
+  for (const day of dayDefs) {
+    const events = weekEvents
+      .filter((ev) => new Date(ev.start.dateTime || ev.start.date).toDateString() === day.key)
+      .sort((a, b) => eventStartMs(a) - eventStartMs(b));
+
+    const group = document.createElement("section");
+    group.className = "day-group";
+
+    const header = document.createElement("div");
+    header.className = "day-group-header";
+
+    const title = document.createElement("h2");
+    title.className = "panel-title panel-title--small";
+    title.textContent = day.label;
+
+    const date = document.createElement("span");
+    date.className = "day-group-date";
+    date.textContent = day.dateText;
+
+    header.appendChild(title);
+    header.appendChild(date);
+    group.appendChild(header);
+
+    if (events.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "empty-state-inline";
+      empty.textContent = "Nessun evento";
+      group.appendChild(empty);
+    } else {
+      const list = document.createElement("ul");
+      list.className = "event-list";
+      for (const ev of events) list.appendChild(buildEventCard(ev));
+      group.appendChild(list);
     }
 
-    if (isEventNow(ev)) {
-      const tag = document.createElement("span");
-      tag.className = "event-tag";
-      tag.textContent = "In corso";
-      li.appendChild(tag);
-    }
-
-    els.todayList.appendChild(li);
+    els.upcomingScroll.appendChild(group);
   }
 }
 

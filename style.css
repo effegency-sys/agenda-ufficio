@@ -354,15 +354,47 @@ body::before {
   min-height: 0;
 }
 
+.today-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4vh;
+}
+
+.day-group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6vw;
+  margin: 0 0 1.2vh 0;
+}
+
+.day-group-header .panel-title {
+  margin: 0;
+}
+
+.day-group-date {
+  font-family: var(--font-body);
+  font-size: 0.75vw;
+  color: var(--text-muted);
+}
+
 .event-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  overflow-y: auto;
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1vh;
+}
+
+.empty-state-inline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.9vw;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .event-card {
