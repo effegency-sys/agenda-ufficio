@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agenda Ufficio — Google Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+
+<!-- Rende l'app installabile come applicazione standalone (PWA), non un
+     semplice sito: niente barra indirizzi né tab quando viene aperta
+     dall'icona installata. -->
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<meta name="theme-color" content="#000000" />
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="logo-slot">
+        <img id="logoImg" src="logo.png" alt="Logo aziendale" onerror="this.hidden=true; document.getElementById('logoPlaceholder').hidden=false;" />
+        <span id="logoPlaceholder" class="logo-placeholder" hidden>LOGO</span>
+      </div>
+      <div class="clock-slot">
+        <div id="clockTime" class="clock-time">--:--</div>
+        <div id="clockDate" class="clock-date">--</div>
+      </div>
+    </header>
+
+    <main class="dashboard" id="dashboard" hidden>
+
+      <section class="calendar-panel">
+        <h1 class="panel-title">Settimana</h1>
+        <div class="calendar-grid">
+          <div class="calendar-days-header" id="calendarDaysHeader"></div>
+          <div class="calendar-allday-row" id="calendarAlldayRow" hidden></div>
+          <div class="calendar-body-scroll">
+            <div class="calendar-body" id="calendarBody">
+              <div class="calendar-hours-col" id="calendarHoursCol"></div>
+              <!-- le 7 colonne dei giorni vengono inserite qui via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="today-panel">
+        <h2 class="panel-title panel-title--small">Oggi</h2>
+        <ul id="todayList" class="event-list"></ul>
+        <p id="todayEmpty" class="empty-state" hidden>Nessun evento in programma per oggi</p>
+        <p id="updatedAt" class="updated-at"></p>
+      </aside>
+
+    </main>
+
+    <section class="auth-panel" id="authPanel">
+      <div class="auth-card">
+        <p class="auth-title">Agenda Ufficio</p>
+        <p class="auth-subtitle">Collega il calendario Google per iniziare</p>
+        <button id="connectBtn">Connetti a Google Calendar</button>
+        <p id="authStatus" class="status-line"></p>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="debugLog" class="debug-log" hidden></div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,465 @@
+/* Fase 2: layout definitivo, adattato all'identità visiva di effe-agency.it
+   (nero, oro, Anton + Manrope). Pensato per essere letto da diversi metri
+   di distanza su un monitor/TV a schermo intero. */
+
+:root {
+  --bg: #000000;
+  --surface: #141414;
+  --surface-raised: #1c1c1c;
+  --border: #2a2a2a;
+  --text: #f5f5f5;
+  --text-muted: #989898;
+  --accent: #f9c610;        /* oro — colore brand effe-agency */
+  --accent-contrast: #000000; /* testo sopra elementi color accento */
+
+  --font-display: "Anton", "Arial Narrow", sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+/* Garantisce che l'attributo "hidden" nasconda sempre l'elemento, anche
+   quando una regola più sotto nel foglio di stile imposta "display". */
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Header ---------- */
+
+.topbar {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2vh 3vw;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-slot {
+  height: 7vh;
+  display: flex;
+  align-items: center;
+}
+
+.logo-slot img {
+  max-height: 100%;
+  max-width: 22vw;
+  object-fit: contain;
+}
+
+.logo-placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 1vw;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  border: 1px dashed var(--border);
+  padding: 1.4vh 1.6vw;
+  border-radius: 6px;
+}
+
+.clock-slot {
+  text-align: right;
+}
+
+.clock-time {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 3.6vw;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-date {
+  font-family: var(--font-body);
+  font-size: 1.1vw;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: capitalize;
+  margin-top: 0.8vh;
+}
+
+/* ---------- Dashboard ---------- */
+
+.dashboard {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 2vw;
+  padding: 3vh 3vw;
+  min-height: 0;
+}
+
+.panel-title {
+  margin: 0 0 2vh 0;
+  font-family: var(--font-body);
+  font-size: 1vw;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.panel-title--small {
+  font-size: 0.85vw;
+}
+
+/* ---------- Settimana (calendario a griglia, pannello principale) ---------- */
+
+.calendar-panel {
+  flex: 3;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.calendar-grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.calendar-days-header,
+.calendar-allday-row {
+  display: grid;
+  grid-template-columns: 3.6vw repeat(7, 1fr);
+  flex: 0 0 auto;
+}
+
+.calendar-days-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.calendar-day-header {
+  padding: 1.2vh 0.3vw;
+  text-align: center;
+  border-left: 1px solid var(--border);
+}
+
+.calendar-day-header-name {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.8vw;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.calendar-day-header-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5vw;
+  margin-top: 0.3vh;
+}
+
+.calendar-day-header.is-today .calendar-day-header-name,
+.calendar-day-header.is-today .calendar-day-header-num {
+  color: var(--accent);
+}
+
+.calendar-allday-row {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6vh 0;
+}
+
+.calendar-allday-cell {
+  border-left: 1px solid var(--border);
+  padding: 0 0.3vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3vh;
+}
+
+.calendar-allday-chip {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-family: var(--font-body);
+  font-size: 0.75vw;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0.3vh 0.4vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-body-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calendar-body {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 3.6vw repeat(7, 1fr);
+}
+
+.calendar-hours-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.calendar-hour-label {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.65vw;
+  color: var(--text-muted);
+  text-align: right;
+  padding-right: 0.4vw;
+  transform: translateY(-0.5em);
+}
+
+.calendar-day-col {
+  position: relative;
+  border-left: 1px solid var(--border);
+  background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-repeat: repeat;
+}
+
+.calendar-day-col.is-today {
+  background-color: rgba(249, 198, 16, 0.05);
+}
+
+.calendar-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  z-index: 3;
+}
+
+.calendar-now-line::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.calendar-event {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  background: var(--surface-raised);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.3vh 0.4vw;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.calendar-event-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.75vw;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-event-time {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.65vw;
+  color: var(--text-muted);
+}
+
+/* ---------- Oggi (fascia laterale) ---------- */
+
+.today-panel {
+  flex: 1;
+  min-width: 0;
+  max-width: 26vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2.4vh 1.6vw;
+  min-height: 0;
+}
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+
+.event-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 0.3vw solid var(--border);
+  border-radius: 8px;
+  padding: 1.4vh 1vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4vh;
+}
+
+.event-card.is-current {
+  border-left-color: var(--accent);
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px rgba(249, 198, 16, 0.25);
+}
+
+.event-time {
+  font-family: var(--font-body);
+  font-size: 1vw;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.event-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.15vw;
+  line-height: 1.35;
+}
+
+.event-tag {
+  font-family: var(--font-body);
+  font-size: 0.7vw;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.3vw;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.updated-at {
+  margin: 1.4vh 0 0 0;
+  font-family: var(--font-body);
+  font-size: 0.75vw;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ---------- Pannello di connessione ---------- */
+
+.auth-panel {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 6vh 6vw;
+  text-align: center;
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 2.4vw;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 0 0 1vh 0;
+}
+
+.auth-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.1vw;
+  color: var(--text-muted);
+  margin: 0 0 3vh 0;
+}
+
+#connectBtn {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: none;
+  padding: 1.6vh 3vw;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 1vw;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+#connectBtn:hover {
+  filter: brightness(1.08);
+}
+
+.status-line {
+  font-family: var(--font-body);
+  font-size: 0.85vw;
+  color: var(--text-muted);
+  margin-top: 2vh;
+}
+
+/* ---------- Log di debug (solo con ?debug nell'URL) ---------- */
+
+.debug-log {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0a0a0a;
+  color: #b8c1cc;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  max-height: 140px;
+  overflow-y: auto;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border);
+  z-index: 1000;
+}
+
+.debug-log div { padding: 2px 0; }
