@@ -295,6 +295,9 @@ body {
   font-family: var(--font-body);
   font-size: 0.65vw;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- Oggi (fascia laterale) ---------- */

@@ -444,9 +444,10 @@ function renderCalendarWeek(events) {
     const block = document.createElement("div");
     block.className = "calendar-event";
     block.style.top = `${((startMin - rangeStartMin) / rangeMin) * 100}%`;
-    // Altezza minima garantita (in vh, non in %) così un evento breve resta
-    // leggibile invece di schiacciare il testo in un riquadro troppo basso.
-    block.style.height = `max(${heightPct}%, ${durationMin < 45 ? "2.3vh" : "3.6vh"})`;
+    // Altezza minima garantita (in vh, non in %): il blocco mostra sempre
+    // titolo + una riga di sottotitolo, quindi serve spazio per due righe
+    // indipendentemente dalla durata reale dell'evento.
+    block.style.height = `max(${heightPct}%, 3.6vh)`;
 
     const title = document.createElement("span");
     title.className = "calendar-event-title";
