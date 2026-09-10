@@ -156,7 +156,7 @@ function onTokenResponse(resp) {
       new Date(tokenExpiresAt).toLocaleTimeString("it-IT"));
 
   scheduleTokenRefresh();
-  includedCalendarIds = null; // ricalcola la lista calendari su ogni nuova connessione
+  includedCalendars = null; // ricalcola la lista calendari su ogni nuova connessione
   fetchEvents();
 }
 
@@ -174,7 +174,7 @@ function scheduleTokenRefresh() {
 
 // ---------- Chiamate a Google Calendar API ----------
 
-let includedCalendarIds = null;
+let includedCalendars = null; // [{ id, summary }]
 
 function isoStartOfDay(offsetDays = 0) {
   const d = new Date();
@@ -207,7 +207,7 @@ async function fetchCalendarList() {
 
 async function resolveIncludedCalendars() {
   if (CONFIG.CALENDAR_MODE !== "all") {
-    return [CONFIG.CALENDAR_ID];
+    return [{ id: CONFIG.CALENDAR_ID, summary: "" }];
   }
   const calendars = await fetchCalendarList();
   const excluded = (CONFIG.EXCLUDED_CALENDARS || []).map((s) => s.trim().toLowerCase());
@@ -215,7 +215,7 @@ async function resolveIncludedCalendars() {
     (cal) => !excluded.includes((cal.summary || "").trim().toLowerCase())
   );
   log(`Calendari inclusi: ${included.map((c) => c.summary).join(", ")}`);
-  return included.map((cal) => cal.id);
+  return included.map((cal) => ({ id: cal.id, summary: cal.summary || "" }));
 }
 
 async function fetchCalendarEvents(calendarId, timeMin, timeMax) {
@@ -235,14 +235,16 @@ function eventStartMs(ev) {
   return new Date(ev.start.dateTime || ev.start.date).getTime();
 }
 
-async function fetchEventsAcrossCalendars(calendarIds, timeMin, timeMax) {
+async function fetchEventsAcrossCalendars(calendars, timeMin, timeMax) {
   const results = await Promise.all(
-    calendarIds.map((id) =>
-      fetchCalendarEvents(id, timeMin, timeMax).catch((err) => {
-        if (err.message === "UNAUTHORIZED") throw err; // gestito dal chiamante (rinnovo token)
-        log(`Errore sul calendario ${id}: ${err.message}`);
-        return [];
-      })
+    calendars.map(({ id, summary }) =>
+      fetchCalendarEvents(id, timeMin, timeMax)
+        .then((events) => events.map((ev) => ({ ...ev, _calendarName: summary })))
+        .catch((err) => {
+          if (err.message === "UNAUTHORIZED") throw err; // gestito dal chiamante (rinnovo token)
+          log(`Errore sul calendario ${id}: ${err.message}`);
+          return [];
+        })
     )
   );
   return results.flat().sort((a, b) => eventStartMs(a) - eventStartMs(b));
@@ -250,13 +252,13 @@ async function fetchEventsAcrossCalendars(calendarIds, timeMin, timeMax) {
 
 async function fetchEvents() {
   try {
-    if (!includedCalendarIds) {
-      includedCalendarIds = await resolveIncludedCalendars();
+    if (!includedCalendars) {
+      includedCalendars = await resolveIncludedCalendars();
     }
 
     const [todayEvents, weekEvents] = await Promise.all([
-      fetchEventsAcrossCalendars(includedCalendarIds, isoStartOfDay(0), isoStartOfDay(1)),
-      fetchEventsAcrossCalendars(includedCalendarIds, isoStartOfDay(0), isoStartOfDay(7)),
+      fetchEventsAcrossCalendars(includedCalendars, isoStartOfDay(0), isoStartOfDay(1)),
+      fetchEventsAcrossCalendars(includedCalendars, isoStartOfDay(0), isoStartOfDay(7)),
     ]);
 
     renderToday(todayEvents);
@@ -264,7 +266,7 @@ async function fetchEvents() {
 
     const now = new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
     els.updatedAt.textContent = `Aggiornato alle ${now}`;
-    log(`Fetch OK: ${todayEvents.length} oggi, ${weekEvents.length} settimana (${includedCalendarIds.length} calendari).`);
+    log(`Fetch OK: ${todayEvents.length} oggi, ${weekEvents.length} settimana (${includedCalendars.length} calendari).`);
   } catch (err) {
     if (err.message === "UNAUTHORIZED") {
       log("Token scaduto o non valido, richiedo un nuovo token...");
@@ -315,6 +317,13 @@ function renderToday(events) {
 
     li.appendChild(time);
     li.appendChild(title);
+
+    if (ev._calendarName) {
+      const calTag = document.createElement("span");
+      calTag.className = "event-calendar-tag";
+      calTag.textContent = ev._calendarName;
+      li.appendChild(calTag);
+    }
 
     if (isEventNow(ev)) {
       const tag = document.createElement("span");
@@ -444,14 +453,15 @@ function renderCalendarWeek(events) {
     title.textContent = ev.summary || "(senza titolo)";
     block.appendChild(title);
 
-    // Sotto i 45 minuti non c'è spazio per una seconda riga leggibile:
-    // meglio mostrare solo il titolo che un orario tagliato a metà.
-    if (durationMin >= 45) {
-      const time = document.createElement("span");
-      time.className = "calendar-event-time";
-      time.textContent = `${fmt(start)} – ${fmt(end)}`;
-      block.appendChild(time);
-    }
+    // Sotto i 45 minuti non c'è spazio per orario + calendario leggibili:
+    // meglio mostrare solo il nome del calendario (l'orario si intuisce
+    // dalla posizione nel riquadro).
+    const subtitle = document.createElement("span");
+    subtitle.className = "calendar-event-time";
+    subtitle.textContent = durationMin >= 45
+      ? [`${fmt(start)} – ${fmt(end)}`, ev._calendarName].filter(Boolean).join(" · ")
+      : ev._calendarName || "";
+    if (subtitle.textContent) block.appendChild(subtitle);
 
     dayColEls[dayIndex].appendChild(block);
   }
