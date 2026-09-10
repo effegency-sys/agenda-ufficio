@@ -22,7 +22,8 @@ const els = {
   authPanel: document.getElementById("authPanel"),
   authStatus: document.getElementById("authStatus"),
   connectBtn: document.getElementById("connectBtn"),
-  upcomingScroll: document.getElementById("upcomingScroll"),
+  upcomingPager: document.getElementById("upcomingPager"),
+  pagerDots: document.getElementById("pagerDots"),
   calendarDaysHeader: document.getElementById("calendarDaysHeader"),
   calendarAlldayRow: document.getElementById("calendarAlldayRow"),
   calendarBody: document.getElementById("calendarBody"),
@@ -327,7 +328,8 @@ function buildEventCard(ev) {
 }
 
 function renderUpcoming(weekEvents) {
-  els.upcomingScroll.innerHTML = "";
+  els.upcomingPager.innerHTML = "";
+  els.pagerDots.innerHTML = "";
 
   const dayDefs = [0, 1, 2].map((offset) => {
     const d = new Date();
@@ -339,13 +341,13 @@ function renderUpcoming(weekEvents) {
     };
   });
 
-  for (const day of dayDefs) {
+  dayDefs.forEach((day, index) => {
     const events = weekEvents
       .filter((ev) => new Date(ev.start.dateTime || ev.start.date).toDateString() === day.key)
       .sort((a, b) => eventStartMs(a) - eventStartMs(b));
 
-    const group = document.createElement("section");
-    group.className = "day-group";
+    const page = document.createElement("section");
+    page.className = "day-page";
 
     const header = document.createElement("div");
     header.className = "day-group-header";
@@ -360,22 +362,40 @@ function renderUpcoming(weekEvents) {
 
     header.appendChild(title);
     header.appendChild(date);
-    group.appendChild(header);
+    page.appendChild(header);
 
     if (events.length === 0) {
       const empty = document.createElement("p");
       empty.className = "empty-state-inline";
       empty.textContent = "Nessun evento";
-      group.appendChild(empty);
+      page.appendChild(empty);
     } else {
       const list = document.createElement("ul");
       list.className = "event-list";
       for (const ev of events) list.appendChild(buildEventCard(ev));
-      group.appendChild(list);
+      page.appendChild(list);
     }
 
-    els.upcomingScroll.appendChild(group);
-  }
+    els.upcomingPager.appendChild(page);
+
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "pager-dot" + (index === 0 ? " is-active" : "");
+    dot.setAttribute("aria-label", day.label);
+    dot.addEventListener("click", () => {
+      els.upcomingPager.scrollTo({
+        left: index * els.upcomingPager.clientWidth,
+        behavior: "smooth",
+      });
+    });
+    els.pagerDots.appendChild(dot);
+  });
+
+  const dots = [...els.pagerDots.children];
+  els.upcomingPager.onscroll = () => {
+    const index = Math.round(els.upcomingPager.scrollLeft / els.upcomingPager.clientWidth);
+    dots.forEach((dot, i) => dot.classList.toggle("is-active", i === index));
+  };
 }
 
 function clamp(value, min, max) {

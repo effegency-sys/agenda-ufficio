@@ -44,7 +44,7 @@ body::before {
   background-image: url("logo.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: min(70vw, 70vh) auto;
+  background-size: min(130vw, 130vh) auto;
   opacity: 0.05;
   pointer-events: none;
   z-index: -1;
@@ -165,7 +165,7 @@ body::before {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(20, 20, 20, 0.92);
+  background: rgba(20, 20, 20, 0.7);
   border: 1px solid rgba(249, 198, 16, 0.5);
   border-radius: 10px;
   overflow: hidden;
@@ -354,13 +354,27 @@ body::before {
   min-height: 0;
 }
 
-.today-scroll {
+.today-pager {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   display: flex;
-  flex-direction: column;
-  gap: 2.4vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.today-pager::-webkit-scrollbar {
+  display: none;
+}
+
+.day-page {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  overflow-y: auto;
+  padding-right: 0.2vw;
 }
 
 .day-group-header {
@@ -378,6 +392,30 @@ body::before {
   font-family: var(--font-body);
   font-size: 0.75vw;
   color: var(--text-muted);
+}
+
+.pager-dots {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 0.7vw;
+  padding-top: 1.4vh;
+}
+
+.pager-dot {
+  width: 0.7vw;
+  height: 0.7vw;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pager-dot.is-active {
+  background: var(--accent);
 }
 
 .event-list {
