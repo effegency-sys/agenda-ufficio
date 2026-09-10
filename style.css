@@ -32,6 +32,22 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
+  position: relative;
+}
+
+/* Filigrana: il logo enorme e quasi invisibile sullo sfondo, per riempire
+   il nero senza distrarre dal contenuto. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("logo.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(70vw, 70vh) auto;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .app {
@@ -137,9 +153,19 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(249, 198, 16, 0.5);
   border-radius: 10px;
   overflow: hidden;
+  animation: calendar-glow 3s ease-in-out infinite;
+}
+
+@keyframes calendar-glow {
+  0%, 100% {
+    box-shadow: 0 0 14px 0px rgba(249, 198, 16, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 30px 4px rgba(249, 198, 16, 0.55);
+  }
 }
 
 .calendar-days-header,
